@@ -59,7 +59,7 @@ try
     Console.WriteLine($"Proceso completado. {registros.Count} registro(s) cargados en la lista.");
     Console.ResetColor();
 
-    UpdateInfoPrudencial(registros);
+    ////UpdateInfoPrudencial(registros);
 
     // ── Mostrar resultados ─────────────────────────────────────
     //Console.ForegroundColor = ConsoleColor.Cyan;

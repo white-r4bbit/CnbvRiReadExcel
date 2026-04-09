@@ -16,3 +16,21 @@ public sealed record RegistroExcel(
         $"[Periodo={Periodo} | Casfim={Casfim} | CampoClave={CampoClave} | " +
         $"CampoNombre={CampoNombre} | Comentario={Comentario}]";
 }
+
+public sealed record RegistroExcelEspecializada(
+    string Periodo,
+    string Casfim,
+    string Especialidad,
+    int IdCaptura,
+    int IdManualInfo,
+    string CampoClave,
+    string CampoNombre,
+    string Formato,
+    string Valor
+)
+{
+    public override string ToString() =>
+    $"[Periodo={Periodo} | Casfim={Casfim} | Especialidad={Especialidad} | " +
+    $"IdCaptura={IdCaptura} | IdManualInfo={IdManualInfo} | CampoClave={CampoClave} | " +
+    $"CampoNombre={CampoNombre} | Formato={Formato} | Valor={Valor}]";
+}
