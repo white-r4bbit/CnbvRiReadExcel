@@ -64,7 +64,7 @@ public static class ExcelService
         return registros.AsReadOnly();
     }
 
-    public static IReadOnlyList<RegistroExcel> LeerRegistrosEspecializadas(
+    public static IReadOnlyList<RegistroExcelEspecializada> LeerRegistrosEspecializadas(
         string filePath,
         int sheetIndex = 1,
         int headerRow = 1)
@@ -79,24 +79,23 @@ public static class ExcelService
                 $"El índice de hoja {sheetIndex} no existe. El libro tiene {workbook.Worksheets.Count} hoja(s).");
 
         var sheet = workbook.Worksheet(sheetIndex);
-        var registros = new List<RegistroExcel>();
+        var registros = new List<RegistroExcelEspecializada>();
 
         // Determinar el último número de fila con datos
         var lastRow = sheet.LastRowUsed()?.RowNumber() ?? 0;
 
         for (int row = headerRow + 1; row <= lastRow; row++)
         {
-            var periodo = ObtenerTexto(sheet, row, 1); // A
-            var casfim = ObtenerTexto(sheet, row, 2); // B
-            var especialidad = ObtenerTexto(sheet, row, 3); // C
-            var idCaptura = ObtenerTexto(sheet, row, 4); // D
-            var idManualInfo = ObtenerTexto(sheet, row, 5); // E
-            var campoClave = ObtenerTexto(sheet, row, 6); // E
-            var campoNombre = ObtenerTexto(sheet, row, 7); // E
-            var formato = ObtenerTexto(sheet, row, 8); // E
-            var valor = ObtenerTexto(sheet, row, 9); // E
+            var periodo = ObtenerTexto(sheet, row, 1);
+            var casfim = ObtenerTexto(sheet, row, 2);
+            var especialidad = ObtenerTexto(sheet, row, 3);
+            var idCaptura = ObtenerTexto(sheet, row, 4);
+            var idManualInfo = ObtenerTexto(sheet, row, 5);
+            var campoClave = ObtenerTexto(sheet, row, 6);
+            var campoNombre = ObtenerTexto(sheet, row, 7);
+            var formato = ObtenerTexto(sheet, row, 8);
+            var valor = ObtenerTexto(sheet, row, 9);
 
-            // Solo procesar filas que tengan al menos un campo con datos
             if (string.IsNullOrWhiteSpace(periodo) &&
                 string.IsNullOrWhiteSpace(casfim) &&
                 string.IsNullOrWhiteSpace(especialidad) &&
@@ -106,6 +105,14 @@ public static class ExcelService
             {
                 continue;
             }
+
+            // Normalizar si es fecha
+            if (formato?.Trim().ToUpperInvariant() == "DD/MM/AAAA")
+            {
+                valor = NormalizarFecha(valor);
+            }
+
+            ValidarCampo(campoClave, formato, valor, row);
 
             registros.Add(new RegistroExcelEspecializada(
                 Periodo: periodo,
@@ -121,6 +128,43 @@ public static class ExcelService
         }
 
         return registros.AsReadOnly();
+    }
+
+    private static string NormalizarFecha(string valor)
+    {
+        if (string.IsNullOrWhiteSpace(valor))
+            return valor;
+
+        valor = valor.Trim();
+
+        // Intentar parsear múltiples formatos comunes
+        var formatos = new[]
+        {
+        "dd/MM/yyyy",
+        "d/M/yyyy",
+        "yyyy-MM-dd",
+        "yyyy-M-d",
+        "MM/dd/yyyy",
+        "M/d/yyyy"
+    };
+
+        if (DateTime.TryParseExact(valor,
+            formatos,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out var fecha))
+        {
+            // 🔴 SIEMPRE REGRESAR FORMATO ESTÁNDAR
+            return fecha.ToString("dd/MM/yyyy");
+        }
+
+        // Fallback: intentar parseo libre (por si Excel manda DateTime serializado)
+        if (DateTime.TryParse(valor, out fecha))
+        {
+            return fecha.ToString("dd/MM/yyyy");
+        }
+
+        return valor; // Se validará después y fallará si no es correcto
     }
 
     private static void ValidarCampo(string campoClave, string formato, string valor, int row)

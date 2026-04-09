@@ -2,7 +2,7 @@
   "profiles": {
     "ExcelReader": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\Tests\\Templates_RI_Prudenciales_Sample.xlsx"
+      "commandLineArgs": "D:\\Tests\\Templates_RI_Especializadas_Sample.xlsx"
     }
   }
 }

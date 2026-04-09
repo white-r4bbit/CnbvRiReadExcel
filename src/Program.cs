@@ -44,7 +44,8 @@ try
     Console.WriteLine(new string('-', 70));
 
     // ── Leer registros ─────────────────────────────────────────
-    var registros = ExcelService.LeerRegistros(filePath, sheetIndex, headerRow);
+    //var registros = ExcelService.LeerRegistros(filePath, sheetIndex, headerRow);
+    var registros = ExcelService.LeerRegistrosEspecializadas(filePath, sheetIndex, headerRow);
 
     if (registros.Count == 0)
     {
